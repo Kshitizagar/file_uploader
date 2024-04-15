@@ -1,0 +1,57 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSV Data Table</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>CSV Data Table</h1>
+  <div id="csvTable"></div>
+
+  <script>
+    // Sample CSV data (replace this with your actual CSV data)
+    const csvData = [
+      { "Name": "John Doe", "Age": 30, "Email": "john@example.com" },
+      { "Name": "Jane Smith", "Age": 25, "Email": "jane@example.com" },
+      { "Name": "Mike Johnson", "Age": 35, "Email": "mike@example.com" }
+    ];
+
+    // Function to generate HTML table from CSV data
+    function generateTable(data) {
+      let tableHtml = '<table>';
+      tableHtml += '<thead><tr>';
+      Object.keys(data[0]).forEach((header) => {
+        tableHtml += `<th>${header}</th>`;
+      });
+      tableHtml += '</tr></thead><tbody>';
+      data.forEach((row) => {
+        tableHtml += '<tr>';
+        Object.values(row).forEach((value) => {
+          tableHtml += `<td>${value}</td>`;
+        });
+        tableHtml += '</tr>';
+      });
+      tableHtml += '</tbody></table>';
+      return tableHtml;
+    }
+
+    // Display the table on the page
+    const csvTableDiv = document.getElementById('csvTable');
+    csvTableDiv.innerHTML = generateTable(csvData);
+  </script>
+</body>
+</html> -->
