@@ -3,9 +3,12 @@ const path = require('path');
 const multer = require('multer');
 const csv = require('csv-parser');
 const fs = require('fs');
-
+const mongoconnect = require("./mongoconnection")
+const datamodel = require("./models/csvmodel")
 const app = express();
 const port = 5000; // Change the port number if needed
+
+mongoconnect()
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -42,6 +45,63 @@ const upload = multer({ storage: storage });
 //     });
 // });
 
+
+
+
+
+// app.post('/upload', upload.single('csvFile'), (req, res) => {
+//     if (!req.file) {
+//       return res.status(400).send('No file uploaded.');
+//     }
+  
+//     // Process the uploaded CSV file
+//     const csvFilePath = req.file.path;
+//     const results = [];
+//     fs.createReadStream(csvFilePath)
+//       .pipe(csv())
+//       .on('data', (data) => results.push(data))
+//       .on('end', async() => {
+
+
+
+// await datamodel.insertMany(results)
+//   .then((docs) => {
+//     console.log('Data saved to MongoDB:', docs);
+//     res.json(docs); // Send the saved documents as JSON response
+//   })
+//   .catch((err) => {
+//     console.error('Error saving data to MongoDB:', err);
+//     res.status(500).json({ error: 'Error saving data to MongoDB.' }); // Send error as JSON response
+//   });
+
+//         // Construct HTML table markup
+//         let tableHtml = '<table border="1"><thead><tr>';
+  
+//         // Add table headers based on CSV column names
+//         const headers = Object.keys(results[0]);
+//         headers.forEach((header) => {
+//           tableHtml += `<th>${header}</th>`;
+//         });
+//         tableHtml += '</tr></thead><tbody>';
+  
+//         // Add table rows with CSV data
+//         results.forEach((row) => {
+//           tableHtml += '<tr>';
+//           headers.forEach((header) => {
+//             tableHtml += `<td>${row[header]}</td>`;
+//           });
+//           tableHtml += '</tr>';
+//         });
+  
+//         tableHtml += '</tbody></table>';
+  
+//         // Send HTML response with table
+//         res.send(tableHtml);
+//       });
+//   });
+  
+
+
 app.post('/upload', upload.single('csvFile'), (req, res) => {
     if (!req.file) {
       return res.status(400).send('No file uploaded.');
@@ -53,33 +113,46 @@ app.post('/upload', upload.single('csvFile'), (req, res) => {
     fs.createReadStream(csvFilePath)
       .pipe(csv())
       .on('data', (data) => results.push(data))
-      .on('end', () => {
-        // Construct HTML table markup
-        let tableHtml = '<table border="1"><thead><tr>';
+      .on('end', async () => {
+        try {
+          // Save the parsed CSV data to MongoDB
+          await datamodel.insertMany(results);
+          console.log('Data saved to MongoDB:', results);
   
-        // Add table headers based on CSV column names
-        const headers = Object.keys(results[0]);
-        headers.forEach((header) => {
-          tableHtml += `<th>${header}</th>`;
-        });
-        tableHtml += '</tr></thead><tbody>';
+          // Construct HTML table markup
+          let tableHtml = '<table border="1"><thead><tr>';
   
-        // Add table rows with CSV data
-        results.forEach((row) => {
-          tableHtml += '<tr>';
+          // Add table headers based on CSV column names
+          const headers = Object.keys(results[0]);
           headers.forEach((header) => {
-            tableHtml += `<td>${row[header]}</td>`;
+            tableHtml += `<th>${header}</th>`;
           });
-          tableHtml += '</tr>';
-        });
+          tableHtml += '</tr></thead><tbody>';
   
-        tableHtml += '</tbody></table>';
+          // Add table rows with CSV data
+          results.forEach((row) => {
+            tableHtml += '<tr>';
+            headers.forEach((header) => {
+              tableHtml += `<td>${row[header]}</td>`;
+            });
+            tableHtml += '</tr>';
+          });
   
-        // Send HTML response with table
-        res.send(tableHtml);
+          tableHtml += '</tbody></table>';
+  
+          // Send HTML response with table
+          res.send(tableHtml);
+        } catch (err) {
+          console.error('Error saving data to MongoDB:', err);
+          res.status(500).json({ error: 'Error saving data to MongoDB.' });
+        }
       });
   });
   
+
+
+
+
 
 // Define a route for the homepage
 app.get('/', (req, res) => {
